@@ -466,6 +466,20 @@ MariaDB [movieco]>  select MOVIE_NUM, MOVIE_TITLE, MOVIE_COST from movie where M
 
 **Question 13**
 
+MariaDB [movieco]>
+MariaDB [movieco]> select movie_num, movie_title, movie_cost, movie_genre
+    -> from movie
+    -> where (movie_genre = 'ACTION' or movie_genre = 'COMEDY')
+    -> and movie_cost < 50
+    -> order by movie_genre asc;
++-----------+---------------+------------+-------------+
+| movie_num | movie_title   | movie_cost | movie_genre |
++-----------+---------------+------------+-------------+
+|      1245 | Time to Burn  |      45.49 | ACTION      |
+|      1237 | Beatnik Fever |      29.95 | COMEDY      |
++-----------+---------------+------------+-------------+
+2 rows in set (0.001 sec)
+
 
 **Question 14**
 
@@ -669,3 +683,29 @@ MariaDB [movieco]> select rental.rent_num, rent_date, video.vid_num, movie_title
 |     1004 | 02-MAR-16 |   34367 | Richard Goodhope           | 05-MAR-16      | 07-MAR-16         |
 +----------+-----------+---------+----------------------------+----------------+-------------------+
 5 rows in set (0.002 sec)
+
+**Qusetion 27**
+MariaDB [movieco]> select movie_num,
+    ->        movie_genre,
+    ->        movie_cost,
+    ->        round(avg(movie_cost)
+    ->            over (partition by movie_genre), 2) as average_cost,
+    ->        round(((movie_cost - avg(movie_cost)
+    ->            over (partition by movie_genre))
+    ->            / avg(movie_cost)
+    ->            over (partition by movie_genre)) * 100, 2) as percentage_difference
+    -> from movie
+    -> order by movie_num;
++-----------+-------------+------------+--------------+-----------------------+
+| movie_num | movie_genre | movie_cost | average_cost | percentage_difference |
++-----------+-------------+------------+--------------+-----------------------+
+|      1234 | FAMILY      |      39.95 |        39.95 |                  0.00 |
+|      1235 | ACTION      |      59.95 |        52.72 |                 13.71 |
+|      1236 | DRAMA       |      59.95 |        58.46 |                  2.54 |
+|      1237 | COMEDY      |      29.95 |        44.12 |                -32.12 |
+|      1238 | DRAMA       |      89.95 |        58.46 |                 53.86 |
+|      1239 | DRAMA       |      25.49 |        58.46 |                -56.40 |
+|      1245 | ACTION      |      45.49 |        52.72 |                -13.71 |
+|      1246 | COMEDY      |      58.29 |        44.12 |                 32.12 |
++-----------+-------------+------------+--------------+-----------------------+
+8 rows in set (0.003 sec)
